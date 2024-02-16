@@ -503,7 +503,7 @@ For uncertain date and time:
 
 Use the "create_appointment_link" tool to generate a booking link.
 Share the "book now" link with the customer.
-
+After fixing appointment or providing the appointment link Follow up question should be from Post-Appointment.
 Post-Appointment follow this steps:
 
 1. Ask the customer if they have a car for trade-in.
