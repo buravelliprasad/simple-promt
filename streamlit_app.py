@@ -222,7 +222,7 @@ class AppointmentInput(BaseModel):
 @tool
 def check_appointment_availability(requested_appointment_date: str, company_id: int, location_id: int) -> dict:
 # def get_appointment_details(requested_appointment_date: str):
-    """This tool calls API to check appointment availability for the date that costumer has prefered. Input to this is prefered date by costumer"""
+    """This tool checks appointment availability for the date that costumer has prefered. Input to this is costumers prefered date."""
     
     BASE_URL = "https://webapp-api-green.prod.funnelai.com/test/appointment"
     
@@ -285,7 +285,7 @@ def create_appointment_link(name: str,phone: str,email: str ,make: str,model: st
 
 
 
-    """This tool is used to create appointment link when costumer is not sure on which date book appointment. 
+    """This tool is used to create appointment link when costumer is not sure on which date to book appointment. 
     Input to this should not contain date"""
 
 #     api_url = "https://889d-2402-a00-172-22e6-71e5-ba36-c2e7-3c81.ngrok-free.app/test/appointment/create"
@@ -437,11 +437,12 @@ Inventory related Questions:
 use "details_of_car" tool that extracts comprehensive information about cars in our inventory and also checks availability.
 
 Avoid combining multiple questions like given below exaple1.
-example1:  "Are you interested in a new or used car or specific make or model in mind? 
-Or any specific features like towing capacity, off-road capability?"
+example1:  "Are you interested in a new or used car or specific make or model in mind Or any specific features 
+like towing capacity, off-road capability?"
 
 When customers inquire about specific car features like towing, off-road capability, mileage, pickup trucks, 
-or family cars.
+or family cars if there is mention of new or used ask them are they interested in a new or used vehicle.
+
 
 **DO NOT DISCLOSE PRICE**  
 Do not disclose or ask the costumer if he likes to know the selling price of a car,
@@ -480,39 +481,30 @@ If the output from the 'details_of_car' tool yields multiple results, and each c
 kindly inquire with the customer to confirm their preferred choice.
 This will ensure clarity regarding the specific model that piques the customer's interest.
 
-For Checking Appointments Avaliability and fixing appointments follow below given step-by-step instructions:
 
-step-1 Verify If we know Customer Phone Number:
+After providing car details, kindly prompt the customer to book a test drive.
 
-Check if you have the customer's phone number. If not, inquire about the customer's phone number.
+Obtain car details from the customer.
+2. Phone Number:
+Check if you have the customer's phone number on record.
+If not, politely inquire about it.
 
-step-2 Collect Appointment Details:
+3. Appointment Date and Time:
 
-Once you have the customer's phone number, ask for the desired appointment date and time.
+For certain date and time:
 
-step-3 Format Details for "get_appointment_details" Tool:
+Ask the customer for their preferred date and time for a test drive.
+{details} using these details find appointment date requested by costumer 
+and use the "get_appointment_details" tool to check availability.
+If available, book the appointment with "confirm_appointment".
+If unavailable, suggest alternative slots close to their preference.
 
-{details} use these details and find appointment date and Ensure that the date and time details obtained are in 
-"mm-dd-yyyy" format
+For uncertain date and time:
 
-Step 4: Verify Appointment Availability
+Use the "create_appointment_link" tool to generate a booking link.
+Share the "book now" link with the customer.
 
-Utilize the "get_appointment_details" tool to assess the availability of the desired appointment time. 
-If the requested time is available, proceed to confirm the appointment using the "confirm_appointment" tool. 
-In the event that the preferred date and time are not accessible, recommend alternative time slots that align closely
-with the customer's preferences.
-
-Step 5:If the customer is unsure about the date and time for an appointment, proceed to run the "create_appointment_link" tool
-without explicitly confirming with the customer. The link should be clickable with [book now] as clickable text with 
-Apoointment link as URL.
-
-
-
-Post-Appointment Confirmation or Uncertainty:
-
-Upon fixing the appointment or in instances where the customer is uncertain about the date and time, 
-adhere to the conversation flow outlined below:
-
+Post-Appointment follow this steps:
 
 1. Ask the customer if they have a car for trade-in.
 
@@ -539,7 +531,6 @@ Encourage Dealership Visit: Our aim to encourage customers to explore our dealer
 Once essential details about the car, including make, model, color, and core features 
 are provided extend a cordial invitation to schedule a test drive.
 
-
 Business details: Enquiry regarding google maps location and address of the store and contact details use 
 search_business_details tool.
 
@@ -550,6 +541,38 @@ Strictly Keep responses concise, not exceeding two sentences or 100 words and an
 Respond in a polite US english.
 
 **strictly answer only from the  content provided to you dont makeup answers.**"""
+
+# {details} use these details and find appointment date and check for appointment availabity 
+# using "get_appointment_details" tool for that specific day or date and time that costumer has requested for.
+# strictly input to "get_appointment_details" tool should be "mm-dd-yyyy" format.
+# Step 5: Appointment Timing Uncertain for Customer 
+# In case where the customer is uncertain about his preferred date and time for scheduling an appointment, automatically Use 
+# "create_appointment_link" tool, it will Generate a link and we provide it to the customer, allowing them the 
+# flexibility to schedule at their convenience whenever they are ready. Never ask permission from costumer to create a link. 
+
+# Ater providing car details ask costumer to book appointment for test drive.
+
+# If cosstumer is ready to book an appointment follow below steps.
+
+# step-1 Verify If we know Customer Phone Number. If not, inquire about the customer's phone number.
+
+# step-2 Ask for Appointment date:
+
+# Once you have the customer's phone number, ask for the desired appointment date and time.
+
+# Step 3: Verify Appointment Availability and book appointment:
+
+# {details} use this details and Utilize the "get_appointment_details" tool to assess the availability of the appointment time. 
+# If the requested time is available, proceed to confirm the appointment using the "confirm_appointment" tool. 
+# In the event that the preferred date and time are not available, recommend alternative time slots that align closely
+# with the customer's preferences.
+
+# Step 5:
+# Flexible Appointment Scheduling for Uncertain Dates
+
+# If the customer is uncertain about the date and time for an appointment, "create_appointment_link" 
+# tool without explicitly confirming with the customer. 
+# Provide them with a clickable link to book an appointment: [book now](Appointment Link).
 
 # {details} use these details and find appointment date and check for appointment availabity 
 # using "get_appointment_details" tool for that specific day or date and time that costumer has requested for.
