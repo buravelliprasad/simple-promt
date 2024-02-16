@@ -667,7 +667,7 @@ def convert_text_to_html_images(text):
     return html_text
     
 def convert_links(text):
-    text = convert_text_to_html_images(text) 
+    
     # Regular expression to match markdown format ![alt text](URL) or [link text](URL)
     pattern = r'!?\[([^\]]+)\]\(([^)]+)\)'
 
@@ -684,6 +684,7 @@ def convert_links(text):
 
     # Replace all occurrences
     html_text = re.sub(pattern, replace_with_tag, text)
+    html_text = convert_text_to_html_images(html_text) 
     return html_text    
 output = ""
 with container:
