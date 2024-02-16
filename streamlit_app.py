@@ -137,6 +137,12 @@ retriever_1 = vectorstore_1.as_retriever(search_type="similarity_score_threshold
 # vectordb_2 = FAISS.from_documents(docs_2, embeddings)
 # retriever_2 = vectordb_2.as_retriever(search_type="similarity", search_kwargs={"k": num_ret})
 
+file_3 = r'csvjson.json'
+loader_3 = JSONLoader(file_path=file_3, jq_schema='.', text_content=False)
+data_3 = loader_3.load()
+vectordb_3 = FAISS.from_documents(data_3, embeddings)
+retriever_4 = vectordb_3.as_retriever(search_type="similarity", search_kwargs={"k": 8})
+
 
 tool1 = create_retriever_tool(
     retriever_1, 
@@ -154,6 +160,12 @@ tool3 = create_retriever_tool(
     retriever_3, 
      "business_details",
      "Searches and returns documents related to business working days and hours, location and address details."
+)
+
+tool4 = create_retriever_tool(
+    retriever_4, 
+     "image_details",
+     "Use to search for vehicle information and images based on make and model."
 )
 
 
@@ -592,7 +604,7 @@ prompt = OpenAIFunctionsAgent.create_prompt(
     system_message=system_message,
     extra_prompt_messages=[MessagesPlaceholder(variable_name=memory_key)]
 )
-tools = [tool1,tool3,check_appointment_availability,confirm_appointment,create_appointment_link]
+tools = [tool1,tool3,tool4,check_appointment_availability,confirm_appointment,create_appointment_link]
 agent = OpenAIFunctionsAgent(llm=llm, tools=tools, prompt=prompt)
 if 'agent_executor' not in st.session_state:
     agent_executor = AgentExecutor(agent=agent, tools=tools, memory=memory, verbose=True, return_source_documents=True,
