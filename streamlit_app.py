@@ -678,7 +678,8 @@ def convert_links(text):
         url = match.group(2)
         # Check for common image file extensions
         if any(url.lower().endswith(ext) for ext in ['.jpg', '.jpeg', '.png', '.gif']):
-            return f'<a href="{url}"><img src="{url}" alt="{alt_or_text}" style="width: 100px; height: auto;"/></a>'
+            # return f'<a href="{url}"><img src="{url}" alt="{alt_or_text}" style="width: 100px; height: auto;"/></a>'
+            return url
         else:
             return f'<a href="{url}">{alt_or_text}</a>'
 
