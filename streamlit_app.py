@@ -467,7 +467,6 @@ For each car, include the make, year, model and trim.
 Additionally, strictly provide their car details links in the response, 
 with the text "explore model name" as a clickable link. For example, if the car model is XYZ, color is red the clickable 
 link should be "explore XYZ_red_color".
-Also provide the image and car details links in the format image_url:example_url, car_details_url:example_url.
 Partition the list with new cars listed first, followed by a separate section for used cars.
 
 When using the 'details_of_car' tool to provide car information, adhere to these guidelines 
@@ -678,14 +677,14 @@ def convert_links(text):
         url = match.group(2)
         # Check for common image file extensions
         if any(url.lower().endswith(ext) for ext in ['.jpg', '.jpeg', '.png', '.gif']):
-            # return f'<a href="{url}"><img src="{url}" alt="{alt_or_text}" style="width: 100px; height: auto;"/></a>'
-            return url
+            return f'<a href="{url}"><img src="{url}" alt="{alt_or_text}" style="width: 100px; height: auto;"/></a>'
+
         else:
             return f'<a href="{url}">{alt_or_text}</a>'
 
     # Replace all occurrences
     html_text = re.sub(pattern, replace_with_tag, text)
-    html_text = convert_text_to_html_images(html_text) 
+
     return html_text    
 output = ""
 with container:
