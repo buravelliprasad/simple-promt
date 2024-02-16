@@ -635,6 +635,24 @@ def conversational_chat(user_input, user_name):
     st.session_state.chat_history.append((user_input, output))
     
     return output
+def convert_links(text):
+    # Regular expression to match markdown format ![alt text](URL) or [link text](URL)
+    pattern = r'!?\[([^\]]+)\]\(([^)]+)\)'
+
+    # Function to replace each match
+    def replace_with_tag(match):
+        prefix = match.group(0)[0]  # Check if it's an image or a link
+        alt_or_text = match.group(1)
+        url = match.group(2)
+        # Check for common image file extensions
+        if any(url.lower().endswith(ext) for ext in ['.jpg', '.jpeg', '.png', '.gif']):
+            return f'<a href="{url}"><img src="{url}" alt="{alt_or_text}" style="width: 100px; height: auto;"/></a>'
+        else:
+            return f'<a href="{url}">{alt_or_text}</a>'
+
+    # Replace all occurrences
+    html_text = re.sub(pattern, replace_with_tag, text)
+    return html_text    
 output = ""
 with container:
     if st.session_state.user_name is None:
@@ -655,19 +673,14 @@ with container:
             with col1:
                 st.image("icon-1024.png", width=50)
             with col2:
-            #     st.markdown(
-            #     f'<div style="background-color: black; color: white; border-radius: 10px; padding: 10px; width: 60%;'
-            #     f' border-top-right-radius: 10px; border-bottom-right-radius: 10px;'
-            #     f' border-top-left-radius: 0; border-bottom-left-radius: 0; box-shadow: 2px 2px 5px #888888;">'
-            #     f'<span style="font-family: Arial, sans-serif; font-size: 16px; white-space: pre-wrap;">{answer}</span>'
-            #     f'</div>',
-            #     unsafe_allow_html=True
-            # )
-                st.markdown(answer)
-               
-            
-
-
+                st.markdown(
+                        f'<div style="background-color: black; color: white; border-radius: 10px; padding: 10px; width: 85%;'
+                        f' border-top-right-radius: 10px; border-bottom-right-radius: 10px;'
+                        f' border-top-left-radius: 0; border-bottom-left-radius: 0; box-shadow: 2px 2px 5px #888888;">'
+                        f'<span style="font-family: Arial, sans-serif; font-size: 16px; white-space: pre-wrap;">{convert_links(answer)}</span>'
+                        f'</div>',
+                        unsafe_allow_html=True
+                    )
         if st.session_state.user_name:
             try:
                 save_chat_to_airtable(st.session_state.user_name, user_input, output)
