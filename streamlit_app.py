@@ -149,7 +149,7 @@ tool1 = create_retriever_tool(
     retriever_1, 
      "details_of_car",
      "use to check availabilty of car and  to get car full details. Input to this should be the car's model\
-     or car features and new or used car as a single argument for example new toeing car or new jeep cherokee"
+     or car features and new or used car as a single argument for example new toeing car or new jeep cherokee  and also use for getting images based on make and model "
 ) 
 
 # tool2 = create_retriever_tool(
@@ -163,11 +163,11 @@ tool3 = create_retriever_tool(
      "Searches and returns documents related to business working days and hours, location and address details."
 )
 
-tool4 = create_retriever_tool(
-    retriever_4, 
-     "image_details",
-     "Use to search for vehicle information and images based on make and model."
-)
+# tool4 = create_retriever_tool(
+#     retriever_4, 
+#      "image_details",
+#      "Use to search for vehicle information and images based on make and model."
+# )
 
 
 
@@ -606,7 +606,7 @@ prompt = OpenAIFunctionsAgent.create_prompt(
     system_message=system_message,
     extra_prompt_messages=[MessagesPlaceholder(variable_name=memory_key)]
 )
-tools = [tool1,tool3,tool4,check_appointment_availability,confirm_appointment,create_appointment_link]
+tools = [tool1,tool3,check_appointment_availability,confirm_appointment,create_appointment_link]
 agent = OpenAIFunctionsAgent(llm=llm, tools=tools, prompt=prompt)
 if 'agent_executor' not in st.session_state:
     agent_executor = AgentExecutor(agent=agent, tools=tools, memory=memory, verbose=True, return_source_documents=True,
