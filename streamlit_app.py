@@ -115,8 +115,6 @@ todays_date = current_date
 day_of_the_week = current_day
 
 business_details_text = [
-    "working days: all Days except sunday",
-    "working hours: 9 am to 7 pm", 
     "Phone: (555) 123-4567",
     "Address: 567 Oak Avenue, Anytown, CA 98765, Email: jessica.smith@example.com",
     "dealer ship location: https://maps.app.goo.gl/ecHtb6y5f8q5PUxb9"
@@ -131,12 +129,12 @@ embeddings = OpenAIEmbeddings()
 vectorstore_1 = FAISS.from_documents(docs_1, embeddings)
 retriever_1 = vectorstore_1.as_retriever(search_type="similarity_score_threshold", search_kwargs={"score_threshold": 0.5,"k": 8})
 
-file_2 = r'short_car_details.csv'
-loader_2 = CSVLoader(file_path=file_2)
-docs_2 = loader_2.load()
-num_ret=len(docs_2)
-vectordb_2 = FAISS.from_documents(docs_2, embeddings)
-retriever_2 = vectordb_2.as_retriever(search_type="similarity", search_kwargs={"k": num_ret})
+# file_2 = r'short_car_details.csv'
+# loader_2 = CSVLoader(file_path=file_2)
+# docs_2 = loader_2.load()
+# num_ret=len(docs_2)
+# vectordb_2 = FAISS.from_documents(docs_2, embeddings)
+# retriever_2 = vectordb_2.as_retriever(search_type="similarity", search_kwargs={"k": num_ret})
 
 
 tool1 = create_retriever_tool(
@@ -146,11 +144,11 @@ tool1 = create_retriever_tool(
      or car features and new or used car as a single argument for example new toeing car or new jeep cherokee"
 ) 
 
-tool2 = create_retriever_tool(
-    retriever_2, 
-     "Availability_check",
-     "use to check availabilty of car, Input is car make or model or both"
-)
+# tool2 = create_retriever_tool(
+#     retriever_2, 
+#      "Availability_check",
+#      "use to check availabilty of car, Input is car make or model or both"
+# )
 tool3 = create_retriever_tool(
     retriever_3, 
      "business_details",
@@ -222,9 +220,9 @@ class AppointmentInput(BaseModel):
     location_id: int = Field(..., description="location of dealership")
         
 @tool
-def get_appointment_details(requested_appointment_date: str, company_id: int, location_id: int) -> dict:
+def check_appointment_availability(requested_appointment_date: str, company_id: int, location_id: int) -> dict:
 # def get_appointment_details(requested_appointment_date: str):
-    """Fetch appointment details for the given date."""
+    """This tool calls API to check appointment availability for the date that costumer has prefered. Input to this is prefered date by costumer"""
     
     BASE_URL = "https://webapp-api-green.prod.funnelai.com/test/appointment"
     
@@ -274,7 +272,7 @@ class CustomerDataStore(BaseModel):
     year:int=Field(..., description="year of the vehicle")
     company_id:int=Field(..., description="id of the company")
     location_id:int=Field(..., description="location id of the company")
-    start_date:str=Field(..., description="is not available")
+    start_date:str=Field(..., description="this should be empty string")
     appointment_timezone:str=Field(..., description="time zone")
     intent:str=Field(..., description="costumer intent")
     summary:str=Field(..., description="one line about summary of appointment,")
@@ -287,7 +285,8 @@ def create_appointment_link(name: str,phone: str,email: str ,make: str,model: st
 
 
 
-    """To create appointment link when costumer is not sure when to book appointment"""
+    """This tool is used to create appointment link when costumer is not sure on which date book appointment. 
+    Input to this should not contain date"""
 
 #     api_url = "https://889d-2402-a00-172-22e6-71e5-ba36-c2e7-3c81.ngrok-free.app/test/appointment/create"
     api_url="https://495c-2402-a00-172-22e6-5ea8-c44e-fd0e-e8ed.ngrok-free.app/test/appointment/create"
@@ -326,22 +325,9 @@ def create_appointment_link(name: str,phone: str,email: str ,make: str,model: st
     # Check the response status code
     if response.status_code == 200:
         print("Data stored successfully!")
-        response_json=response.json()
-        print(response_json)
-        print(type(response_json))
-        # appointment_url = response.json().get("appointment_url")
-        appointment_url=response_json.get("appointment_url")
-        try:
-            appointment_url=response_json.get("appointment_url")
-        except Exception as e:
-            st.error(f"Error: {response.status_code}")
-            print("error",e)
-            return None
-        
-        print("-----")
-        print(appointment_url)
+        appointment_url=response.text
         return appointment_url
-        
+           
     else:
         print(f"Failed to store data. Status code: {response.status_code}")
         print(response.text)  # Print the response content for debugging
@@ -371,7 +357,7 @@ def confirm_appointment(name: str,phone: str,email: str ,make: str,model: str,ye
 
 
 
-    """Store appointment data using an API."""
+    """Use this tool to confirm appointment for the given date and time"""
 #     print(data)
     
     # Your API endpoint for storing appointment data
@@ -443,57 +429,29 @@ memory = ConversationBufferMemory(memory_key="chat_history", return_messages=Tru
 
 
 template = """You are an costumer care support exectutive based on your performance you will get bonus and incentives 
-so follow instructions strictly and respond in respond in Personable, Persuvasive, creative, engaging, witty and professional.
+so follow instructions strictly and respond in Personable, Persuvasive, creative, engaging, witty and professional.
 The name of the costumer is {name} and the dealership name is {dealership_name}. 
 Do not start with appointment related questions.
 To ensure a consistent and effective response, please adhere to the following guidelines:
+Inventory related Questions: 
+use "details_of_car" tool that extracts comprehensive information about cars in our inventory and also checks availability.
 
-Use "car_vailability_check" to check car is available in inventory. If car is available run  "details_of_car" tool that 
-extracts comprehensive information about specific cars in the inventory.This includes details like trim, price, color, and cost.
+Avoid combining multiple questions like given below exaple1.
+example1:  "Are you interested in a new or used car or specific make or model in mind? 
+Or any specific features like towing capacity, off-road capability?"
 
-In short "car_vailability_check"  and "details_of_car" tools together when costumer asks for an specific car model availability.
-
-To optimize the search process, ensure the system is aware of the car model and also whether the customer
-is interested in new or used car.
-
-In cases where specific details are not included in the initial inquiry, initiate a proactive approach 
-by requesting the missing information.
-
-To streamline the process, Avoid combining multiple questions into one.
- for example:  "Are you interested in a new or used car and do you have a specific make or model in mind? 
-Or perhaps you're looking for a vehicle with certain features like towing capacity, 
-off-road capability, or good mileage? Let me know so I can assist you further."
-In the above example multiple questions combined.
-Instead you should ask are this way
-you: Are you looking for new car or used car?
-customer: yes new car
-you:what make and model you are interested?
-customer: xx make and xx model
-
-In some cases customer inquires about car with features like towing, off-road capability,
-good mileage, or pickup trucks or family car and similar to this type in this case no need to ask
-about make and model of the car inquire whether they are interested in a new or used vehicle.
-example is given below.
-costumer: I'm looking for a toeing car
-you: are interested in new or used car.
-costumer: new or old car he gives his preference
-you: use "details_of_car" tool to retrieve details of the cars.
-
-Ask sigle question in that no sub questions until all necessary details are obtained.
-This ensures a more efficient and accurate retrieval of car information.
-
-
+When customers inquire about specific car features like towing, off-road capability, mileage, pickup trucks, 
+or family cars.
 
 **DO NOT DISCLOSE PRICE**  
 Do not disclose or ask the costumer if he likes to know the selling price of a car,
-disclose selling price only when the customer explicitly requests it, than use "details_of_car" tool.
+disclose selling price only when the customer explicitly requests it.
 
 When utilizing the "details_of_car" tool, please respond with a list of cars, excluding square brackets. 
-For each car, include the make, year, model, and trim. Additionally, strictly provide their respective links in the answer, 
-with the text "explore model name" as a clickable link. For example, if the car model is XYZ, the clickable link should be 
-"explore XYZ." Please adhere to this format when using the "details_of_car" tool and not for "car_vailability_check".
-
-
+For each car, include the make, year, model, and trim. Additionally, strictly provide their respective links in the response, 
+with the text "explore model name" as a clickable link. For example, if the car model is XYZ, color is red the clickable 
+link should be "explore XYZ_red_color".
+Partition the list with new cars listed first, followed by a separate section for used cars.
 
 When using the 'details_of_car' tool to provide car information, adhere to these guidelines 
 to ensure concise and non-redundant responses:
@@ -518,7 +476,7 @@ Example:
 If two cars have the same make, model, year, trim, exterior color, interior color, and new/used status 
 display only one of them in the response.
 
-If the output from the 'details_of_car' tool yields multiple results, and each car model is distinct, 
+If the output from the 'details_of_car' tool yields multiple results, and each car model is distinct,
 kindly inquire with the customer to confirm their preferred choice.
 This will ensure clarity regarding the specific model that piques the customer's interest.
 
@@ -545,8 +503,8 @@ In the event that the preferred date and time are not accessible, recommend alte
 with the customer's preferences.
 
 Step 5:If the customer is unsure about the date and time for an appointment, proceed to run the "create_appointment_link" tool
-without explicitly confirming with the customer. 
-Initiate "create_appointment_link" tool when uncertainty about the appointment details is detected.
+without explicitly confirming with the customer. The link should be clickable with [book now] as clickable text with 
+Apoointment link as URL.
 
 
 
@@ -577,14 +535,13 @@ adhere to the conversation flow outlined below:
     - User: [Response]
     
 
-Encourage Dealership Visit: We aim to encourage customers to explore our dealership for test drives or engage in 
-informative sessions with our team. Once essential details about the car, including make, model, color, and core features, 
-are provided, and if we accurately identify the customer's preferred car model, extend a cordial invitation to schedule a 
-test drive or visit us. Our experts are poised to offer a comprehensive product overview tailored to their specific interests.
+Encourage Dealership Visit: Our aim to encourage customers to explore our dealership for test drives. 
+Once essential details about the car, including make, model, color, and core features 
+are provided extend a cordial invitation to schedule a test drive.
 
 
-Business details: Enquiry regarding google maps location of the store, address of the store, working days and working hours 
-and contact details use search_business_details tool to get information.
+Business details: Enquiry regarding google maps location and address of the store and contact details use 
+search_business_details tool.
 
 company details:
 compant id is 39, location id is 1 and timezone is America/New_York
@@ -593,6 +550,14 @@ Strictly Keep responses concise, not exceeding two sentences or 100 words and an
 Respond in a polite US english.
 
 **strictly answer only from the  content provided to you dont makeup answers.**"""
+
+# {details} use these details and find appointment date and check for appointment availabity 
+# using "get_appointment_details" tool for that specific day or date and time that costumer has requested for.
+# strictly input to "get_appointment_details" tool should be "mm-dd-yyyy" format.
+# Step 5: Appointment Timing Uncertain for Customer 
+# In case where the customer is uncertain about his preferred date and time for scheduling an appointment, automatically Use 
+# "create_appointment_link" tool, it will Generate a link and we provide it to the customer, allowing them the 
+# flexibility to schedule at their convenience whenever they are ready. Never ask permission from costumer to create a link. 
 details= "Today's date is "+ todays_date +" in mm-dd-yyyy format and todays week day is "+day_of_the_week+"."
 name = st.session_state.user_name
 dealership_name="Gosch Chevrolet"
@@ -603,7 +568,7 @@ prompt = OpenAIFunctionsAgent.create_prompt(
     system_message=system_message,
     extra_prompt_messages=[MessagesPlaceholder(variable_name=memory_key)]
 )
-tools = [tool1,tool2,tool3,get_appointment_details,confirm_appointment,create_appointment_link]
+tools = [tool1,tool2,tool3,check_appointment_availability,confirm_appointment,create_appointment_link]
 agent = OpenAIFunctionsAgent(llm=llm, tools=tools, prompt=prompt)
 if 'agent_executor' not in st.session_state:
     agent_executor = AgentExecutor(agent=agent, tools=tools, memory=memory, verbose=True, return_source_documents=True,
