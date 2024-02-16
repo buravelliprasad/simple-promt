@@ -9,6 +9,7 @@ from langchain import PromptTemplate, LLMChain
 # import streamlit as st
 from dateutil import parser
 # from datetime import datetime
+from langchain.document_loaders import JSONLoader
 import datetime
 import calendar
 import random
