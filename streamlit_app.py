@@ -148,8 +148,9 @@ retriever_4 = vectordb_3.as_retriever(search_type="similarity", search_kwargs={"
 tool1 = create_retriever_tool(
     retriever_1, 
      "details_of_car",
-     "use to check availabilty of car and  to get car full details. Input to this should be the car's model\
-     or car features and new or used car as a single argument for example new toeing car or new jeep cherokee  and also use for getting images based on make and model "
+     "use to check availabilty of car and  to get car full details with images. Input to this should be the car's model\
+     or car features and new or used car as a single argument for example new toeing car or new jeep cherokee\
+     and also use for getting images based on make and model "
 ) 
 
 # tool2 = create_retriever_tool(
