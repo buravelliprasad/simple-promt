@@ -304,7 +304,7 @@ def create_appointment_link(name: str,phone: str,email: str ,make: str,model: st
 
 #     api_url = "https://889d-2402-a00-172-22e6-71e5-ba36-c2e7-3c81.ngrok-free.app/test/appointment/create"
     # api_url="https://495c-2402-a00-172-22e6-5ea8-c44e-fd0e-e8ed.ngrok-free.app/test/appointment/create"
-    api_url="https://https://e182-52-73-21-156.ngrok-free.app/test/appointment/create"
+    api_url="https://e182-52-73-21-156.ngrok-free.app/test/appointment/create"
 
     data_dict = {
     "company_id": company_id,
