@@ -138,11 +138,11 @@ retriever_1 = vectorstore_1.as_retriever(search_type="similarity_score_threshold
 # vectordb_2 = FAISS.from_documents(docs_2, embeddings)
 # retriever_2 = vectordb_2.as_retriever(search_type="similarity", search_kwargs={"k": num_ret})
 
-file_3 = r'csvjson.json'
-loader_3 = JSONLoader(file_path=file_3, jq_schema='.', text_content=False)
-data_3 = loader_3.load()
-vectordb_3 = FAISS.from_documents(data_3, embeddings)
-retriever_4 = vectordb_3.as_retriever(search_type="similarity", search_kwargs={"k": 8})
+# file_3 = r'csvjson.json'
+# loader_3 = JSONLoader(file_path=file_3, jq_schema='.', text_content=False)
+# data_3 = loader_3.load()
+# vectordb_3 = FAISS.from_documents(data_3, embeddings)
+# retriever_4 = vectordb_3.as_retriever(search_type="similarity", search_kwargs={"k": 8})
 
 
 tool1 = create_retriever_tool(
