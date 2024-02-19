@@ -657,17 +657,6 @@ def convert_links(text):
     return html_text 
 # ..........................................................
 
-
-# Example usage
-text_with_images_and_links = "image_url:example.jpg, car_details_url:details1 ! [alt text](link1) [link2](link2)"
-html_output = convert_text_to_html_images_and_links(text_with_images_and_links)
-print(html_output)
-
-
-
-
-
-
 # ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 output = ""
 with container:
