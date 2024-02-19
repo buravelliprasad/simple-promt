@@ -465,7 +465,7 @@ disclose selling price only when the customer explicitly requests it.
 
 When utilizing the "details_of_car" tool, please respond with a list of cars, excluding square brackets. 
 For each car, include the make, year, model and trim.
-Additionally, strictly provide their car details links and also provide car images url.
+Additionally, strictly provide their car details links and also provide car images link.
 
 Partition the list with new cars listed first, followed by a separate section for used cars.
 
