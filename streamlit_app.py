@@ -253,7 +253,7 @@ def create_appointment_link(name: str,phone: str,email: str ,make: str,model: st
     """This tool is used to create appointment link when costumer is not sure on which date to book appointment. 
     Input to this should not contain date"""
 
-    api_url="https://7c54-2402-a00-172-22e6-4c5c-df4d-f828-ac6c.ngrok-free.app/"
+    api_url="https://7c54-2402-a00-172-22e6-4c5c-df4d-f828-ac6c.ngrok-free.app/test/appointment/create"
 
     data_dict = {
     "company_id": company_id,
