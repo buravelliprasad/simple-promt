@@ -150,7 +150,7 @@ class VINDetails(BaseModel):
 
 @tool
 def get_car_details_from_vin(vin):
-    """Fetch car details for the given VIN."""
+    """Fetch car details for the given VIN that costumer is interested to trade in."""
     
     BASE_URL = f"https://vpic.nhtsa.dot.gov/api/vehicles/DecodeVinValues/{vin}?format=json"
 
